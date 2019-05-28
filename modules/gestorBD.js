@@ -111,6 +111,7 @@ module.exports = {
                 });
             }
         });
+
     },
     insertarUsuario : function(usuario, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
