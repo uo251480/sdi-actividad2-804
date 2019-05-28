@@ -126,6 +126,21 @@ module.exports = function(app, swig, gestorBD) {
         }
     });
 
+    app.get("/listarUsuarios", function(req, res) {
+        var criterio = { autor : req.session.usuario };
+        gestorBD.obtenerUsuarios(null,function(usuarios) {
+            if (usuarios == null) {
+                res.send("Error al listar ");
+            } else {
+                var respuesta = swig.renderFile('views/listarUsuarios.html',
+                    {
+                        usuarios : usuarios
+                    });
+                res.send(respuesta);
+            }
+        });
+    });
+
     app.get('/desconectarse', function (req, res) {
         req.session.usuario = null;
         res.send("Usuario desconectado");
