@@ -8,6 +8,8 @@ module.exports = function(app, swig, gestorBD) {
         res.send(respuesta);
     });
 
+
+
     app.post('/usuario', function (req, res) {
         var criterio = {"email": req.body.email};
         if (req.body.password != req.body.confirmpassword)
@@ -69,6 +71,12 @@ module.exports = function(app, swig, gestorBD) {
     app.get("/identificarse", function (req, res) {
         var respuesta = swig.renderFile('views/bidentificacion.html', {});
         res.send(respuesta);
+    });
+
+    app.get("/desconectarse", function (req, res) {
+        req.session.usuario = null;
+        res.redirect("/identificarse" +
+            "?mensaje=Se ha desconectado correctamente");
     });
 
     app.post("/identificarse", function (req, res) {
