@@ -14,7 +14,7 @@ module.exports = function(app, swig, gestorBD) {
             res.redirect("/registrarse?mensaje=Las passwords no coinciden");
         else {
             gestorBD.obtenerUsuarios(criterio, function (usuarios) {
-                if (usuarios != null)
+                if (usuarios.length >= 1)
                     res.redirect("/registrarse?mensaje=Email ya en uso");
                 else {
                     var seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
@@ -87,10 +87,35 @@ module.exports = function(app, swig, gestorBD) {
 
             } else {
                 req.session.usuario = usuarios[0].email;
-                res.redirect("/publicaciones");
+                if (usuarios[0].email == app.get('adminEmail'))
+                    res.redirect("/vistaAdministrador");
+                else
+                    res.redirect("/vistaUsuario");
             }
         });
 
+    });
+
+    app.get('/vistaAdministrador', function (req, res) {
+        if (req.session.usuario != app.get('adminEmail'))
+            res.redirect("/identificarse" +
+                "?mensaje=Necesitas identificarte como administrador para acceder a este recurso" +
+                "&tipoMensaje=alert-danger ");
+        else {
+            var respuesta = swig.renderFile('views/vistaAdministrador.html', {});
+            res.send(respuesta);
+        }
+    });
+
+    app.get('/vistaUsuario', function (req, res) {
+        if (req.session.usuario == app.get('adminEmail'))
+            res.redirect("/identificarse" +
+                "?mensaje=Necesitas identificarte como usuario estándar para acceder a este recurso" +
+                "&tipoMensaje=alert-danger ");
+        else {
+            var respuesta = swig.renderFile('views/vistaUsuario.html', {});
+            res.send(respuesta);
+        }
     });
 
     app.get('/desconectarse', function (req, res) {

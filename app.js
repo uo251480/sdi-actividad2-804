@@ -156,6 +156,9 @@ app.set('port', 9000);
 app.set('db','mongodb://admin804:sdi804@sdi-actividad2-804-shard-00-00-rb4ml.mongodb.net:27017,sdi-actividad2-804-shard-00-01-rb4ml.mongodb.net:27017,sdi-actividad2-804-shard-00-02-rb4ml.mongodb.net:27017/test?ssl=true&replicaSet=sdi-actividad2-804-shard-0&authSource=admin&retryWrites=true');
 app.set('clave','abcdefg');
 app.set('crypto',crypto);
+app.set('adminEmail', 'admin@email.com')
+app.set('adminPassword', 'admin')
+
 
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD); // (app, param1, param2, etc.)
