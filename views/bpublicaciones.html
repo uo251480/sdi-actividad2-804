@@ -5,7 +5,7 @@
 
 <!-- Agregar Canción -->
 <div class="row text-right">
-	<a href="/canciones/agregar" class="btn btn-info" role="button">Agregar canción</a>
+	<a href="/ofertas/agregar" class="btn btn-info" role="button">Nueva oferta</a>
 </div>
 
 <div class="table-responsive">
@@ -26,8 +26,8 @@
 				<td>{{ oferta.detalles }}</td>
 				<td>{{ oferta.precio }}</td>
 				<td>{{ oferta.usuario }}</td>
-				<td><a href="/cancion/modificar/{{ cancion._id.toString() }}"">Modificar</a> <br>
-					<a href="/cancion/eliminar/{{ cancion._id.toString() }}">Eliminar</a> <br>
+				<td>
+					<a href="/oferta/eliminar/{{ oferta._id.toString() }}">Eliminar</a> <br>
 			    </td>
 			</tr>
 		{% endfor %}
@@ -37,7 +37,7 @@
 
 <!-- Agregar Canción -->
 <div class="row text-right">
-	<a href="/canciones/agregar" class="btn btn-info" role="button">Agregar canción</a>
+	<a href="/ofertas/agregar" class="btn btn-info" role="button">Nueva oferta</a>
 </div>
 
 {% endblock %}

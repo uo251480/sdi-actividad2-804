@@ -12,7 +12,7 @@ module.exports = function(app, swig, gestorBD) {
                 nombre: req.body.nombre,
                 detalles: req.body.detalles,
                 precio: req.body.precio,
-                usuario: req.session.user,
+                usuario: req.session.usuario,
                 fecha: today,
             };
 
@@ -35,7 +35,7 @@ module.exports = function(app, swig, gestorBD) {
         });
 
     app.get("/publicaciones", function(req, res) {
-        var criterio = { usuario : req.session.user };
+        var criterio = { usuario : req.session.usuario };
         gestorBD.obtenerOfertas(criterio, function(ofertas) {
             if (ofertas == null) {
                 res.send("Error al listar ");
@@ -48,6 +48,17 @@ module.exports = function(app, swig, gestorBD) {
             }
         });
     });
+
+    app.get('/oferta/eliminar/:id', function (req, res) {
+        var criterio = {"_id" : gestorBD.mongo.ObjectID(req.params.id) };
+        gestorBD.eliminarOferta(criterio,function(canciones){
+            if ( canciones == null ){
+                res.send(respuesta);
+            } else {
+                res.redirect("/publicaciones");
+            }
+        });
+    })
 
     app.get('/canciones/agregar', function (req, res) {
 
