@@ -9,20 +9,26 @@
 		<thead>
 			<tr>
 				<th>Nombre</th>
-				<th>Genero</th>
+				<th>Detalles</th>
+				<th>Precio</th>
+				<th>Vendedor</th>
 				<th class="col-md-1"></th>
 			</tr>
 		</thead>
 		<tbody>
-		{% for cancion in canciones %}
+		{% for oferta in ofertas %}
 			<tr>
-				<td>{{ cancion.nombre }}</td>
-				<td>{{ cancion.genero }}</td>
+				<td>{{ oferta.nombre }}</td>
+				<td>{{ oferta.detalles }}</td>
+				<td>{{ oferta.precio }}</td>
+				<td>{{ oferta.usuario }}</td>
 				<td>
-					 <audio controls>
-					   <source src="/audios/{{ cancion._id.toString() }}.mp3" type="audio/mpeg">
-					</audio>  
-			    </td>
+					{%if oferta.vendida != null %}
+					<a class="btn btn-default disabled">Vendido</a> <br>
+					{% else %}
+					<a class="btn btn-primary" href="/oferta/comprar/{{ oferta._id.toString() }}">Comprar</a> <br>
+					{% endif %}
+				</td>
 			</tr>
 		{% endfor %}
 		</tbody>

@@ -9,11 +9,12 @@ module.exports = function(app, swig, gestorBD) {
     app.post("/oferta", function (req, res) {
             var today = new Date();
             var oferta = {
-                nombre: req.body.nombre,
-                detalles: req.body.detalles,
-                precio: req.body.precio,
-                usuario: req.session.usuario,
-                fecha: today,
+                nombre : req.body.nombre,
+                detalles : req.body.detalles,
+                precio : req.body.precio,
+                usuario : req.session.usuario,
+                vendida : null,
+                fecha : today
             };
 
             if (oferta.nombre === null || oferta.nombre === undefined || oferta.nombre === '' ||
@@ -58,7 +59,22 @@ module.exports = function(app, swig, gestorBD) {
                 res.redirect("/publicaciones");
             }
         });
-    })
+    });
+
+    app.get("/ofertas", function(req, res) {
+
+        gestorBD.obtenerOfertas(null, function(ofertas) {
+            if (ofertas == null) {
+                res.send("Error al listar ");
+            } else {
+                var respuesta = swig.renderFile('views/bcompras.html',
+                    {
+                        ofertas : ofertas
+                    });
+                res.send(respuesta);
+            }
+        });
+    });
 
     app.get('/canciones/agregar', function (req, res) {
 
