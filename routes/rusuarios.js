@@ -127,8 +127,8 @@ module.exports = function(app, swig, gestorBD) {
     });
 
     app.get("/listarUsuarios", function(req, res) {
-        var criterio = { autor : req.session.usuario };
-        gestorBD.obtenerUsuarios(null,function(usuarios) {
+        var criterio = { email : { $ne: req.session.usuario} };
+        gestorBD.obtenerUsuarios(criterio,function(usuarios) {
             if (usuarios == null) {
                 res.send("Error al listar ");
             } else {
@@ -139,6 +139,37 @@ module.exports = function(app, swig, gestorBD) {
                 res.send(respuesta);
             }
         });
+    });
+
+    app.post('/admin/eliminarUsuarios', function (req, res) {
+        var usersToDel = req.body.toDelete;
+
+        if (usersToDel == null) {
+            res.redirect("/listarUsuarios" +
+                "?mensaje=No se eliminó ningún usuario" +
+                "&tipoMensaje=alert-danger ");
+        }
+        else {
+            if (!Array.isArray(usersToDel)) {
+                var aux = usersToDel;
+                usersToDel = [];
+                usersToDel.push(aux);
+            }
+
+            var criterio = {email: {$in: usersToDel} };
+            console.log(criterio.toString());
+
+            gestorBD.eliminarUsuarios(criterio, function (result) {
+                if (result == null || result < 1) {
+                    res.redirect("/listarUsuarios" +
+                        "?mensaje=Los usuarios no fueron eliminados");
+                } else {
+                    res.redirect("/listarUsuarios");
+                }
+
+            });
+        }
+
     });
 
     app.get('/desconectarse', function (req, res) {
