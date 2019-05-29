@@ -13,15 +13,19 @@
 		<thead>
 			<tr>
 				<th>Nombre</th>
-				<th>Genero</th>
+				<th>Detalles</th>
+				<th>Precio</th>
+				<th>Vendedor</th>
 				<th class="col-md-1"></th>
 			</tr>
 		</thead>
 		<tbody>
-		{% for cancion in canciones %}
+		{% for oferta in ofertas %}
 			<tr>
-				<td>{{ cancion.nombre }}</td>
-				<td>{{ cancion.genero }}</td>
+				<td>{{ oferta.nombre }}</td>
+				<td>{{ oferta.detalles }}</td>
+				<td>{{ oferta.precio }}</td>
+				<td>{{ oferta.usuario }}</td>
 				<td><a href="/cancion/modificar/{{ cancion._id.toString() }}"">Modificar</a> <br>
 					<a href="/cancion/eliminar/{{ cancion._id.toString() }}">Eliminar</a> <br>
 			    </td>
