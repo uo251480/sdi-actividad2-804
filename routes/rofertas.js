@@ -61,6 +61,78 @@ module.exports = function(app, swig, gestorBD) {
         });
     });
 
+    app.get("/buscador", function(req, res) {
+        var criterio = {};
+        if( req.query.busqueda != null ){
+            criterio = { "nombre" :  {$regex : ".*"+req.query.busqueda+".*"} };
+        }
+
+        var pg = parseInt(req.query.pg); // Es String !!!
+        if ( req.query.pg == null){ // Puede no venir el param
+            pg = 1;
+        }
+        gestorBD.obtenerOfertas(criterio, function(ofertas) {
+            if (ofertas == null) {
+                res.send("Error al listar ");
+            } else {
+                var total = ofertas.length;
+                console.log((ofertas.length))
+                var ultimaPg = total/4;
+                if (total % 4 > 0 ){ // Sobran decimales
+                    ultimaPg = ultimaPg+1;
+                }
+                var paginas = []; // paginas mostrar
+                for(var i = pg-2 ; i <= pg+2 ; i++){
+                    if ( i > 0 && i <= ultimaPg){
+                        paginas.push(i);
+                    }
+                }
+                var respuesta = swig.renderFile('views/ofertas.html',
+                    {
+                        ofertas : ofertas,
+                        paginas : paginas,
+                        actual : pg
+                    });
+                res.send(respuesta);
+            }
+        });
+    });
+
+    app.get("/tienda", function(req, res) {
+        var criterio = {};
+        if( req.query.busqueda != null ){
+            criterio = { "nombre" :  {$regex : ".*"+req.query.busqueda+".*"} };
+        }
+
+        var pg = parseInt(req.query.pg); // Es String !!!
+        if ( req.query.pg == null){ // Puede no venir el param
+            pg = 1;
+        }
+        gestorBD.obtenerCancionesPg(criterio, pg , function(canciones, total ) {
+            if (canciones == null) {
+                res.send("Error al listar ");
+            } else {
+                var ultimaPg = total/4;
+                if (total % 4 > 0 ){ // Sobran decimales
+                    ultimaPg = ultimaPg+1;
+                }
+                var paginas = []; // paginas mostrar
+                for(var i = pg-2 ; i <= pg+2 ; i++){
+                    if ( i > 0 && i <= ultimaPg){
+                        paginas.push(i);
+                    }
+                }
+                var respuesta = swig.renderFile('views/btienda.html',
+                    {
+                        canciones : canciones,
+                        paginas : paginas,
+                        actual : pg
+                    });
+                res.send(respuesta);
+            }
+        });
+    });
+
     app.get("/ofertas", function(req, res) {
 
         gestorBD.obtenerOfertas(null, function(ofertas) {
@@ -166,40 +238,7 @@ module.exports = function(app, swig, gestorBD) {
         res.send('Respuesta patrón promo* ');
     });
 
-    app.get("/tienda", function(req, res) {
-        var criterio = {};
-        if( req.query.busqueda != null ){
-            criterio = { "nombre" :  {$regex : ".*"+req.query.busqueda+".*"} };
-        }
 
-        var pg = parseInt(req.query.pg); // Es String !!!
-        if ( req.query.pg == null){ // Puede no venir el param
-            pg = 1;
-        }
-        gestorBD.obtenerCancionesPg(criterio, pg , function(canciones, total ) {
-            if (canciones == null) {
-                res.send("Error al listar ");
-            } else {
-                var ultimaPg = total/4;
-                if (total % 4 > 0 ){ // Sobran decimales
-                    ultimaPg = ultimaPg+1;
-                }
-                var paginas = []; // paginas mostrar
-                for(var i = pg-2 ; i <= pg+2 ; i++){
-                    if ( i > 0 && i <= ultimaPg){
-                        paginas.push(i);
-                    }
-                }
-                var respuesta = swig.renderFile('views/btienda.html',
-                    {
-                        canciones : canciones,
-                        paginas : paginas,
-                        actual : pg
-                    });
-                res.send(respuesta);
-            }
-        });
-    });
 
     app.get('/cancion/modificar/:id', function (req, res) {
         var criterio = { "_id" : gestorBD.mongo.ObjectID(req.params.id) };
