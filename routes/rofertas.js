@@ -50,6 +50,21 @@ module.exports = function(app, swig, gestorBD) {
         });
     });
 
+    app.get("/publicaciones", function(req, res) {
+        var criterio = { usuario : req.session.usuario };
+        gestorBD.obtenerOfertas(criterio, function(ofertas) {
+            if (ofertas == null) {
+                res.send("Error al listar ");
+            } else {
+                var respuesta = swig.renderFile('views/bpublicaciones.html',
+                    {
+                        ofertas : ofertas
+                    });
+                res.send(respuesta);
+            }
+        });
+    });
+
     app.get('/oferta/eliminar/:id', function (req, res) {
         var criterio = {"_id" : gestorBD.mongo.ObjectID(req.params.id) };
         gestorBD.eliminarOferta(criterio,function(canciones){
@@ -57,6 +72,38 @@ module.exports = function(app, swig, gestorBD) {
                 res.send(respuesta);
             } else {
                 res.redirect("/publicaciones");
+            }
+        });
+    });
+
+    app.get('/oferta/comprar/:id', function (req, res) {
+        var idDeOferta = gestorBD.mongo.ObjectID(req.params.id);
+        gestorBD.restarDinero(idDeOferta, req.session.usuario, function (dinero) {
+            if (dinero == null) {
+                res.redirect("/tienda?mensaje=Error en la compra");
+            } else if (dinero < 0) {
+                res.redirect("/tienda?mensaje=No hay dinero suficiente");
+            } else {
+                var criterio = {"_id": idDeOferta};
+                gestorBD.obtenerOfertas(criterio, function (ofertas) {
+                    if (ofertas == null) {
+                        res.redirect("/tienda?mensaje=Error en la oferta");
+                    } else {
+                        gestorBD.sumarDinero(idDeOferta, ofertas[0].usuario, function (dineroVendedor) {
+                            if (dineroVendedor == null) {
+                                res.redirect("/tienda?mensaje=Error en la compra");
+                            } else {
+                                gestorBD.venderOferta(idDeOferta, req.session.usuario, function (idCompra) {
+                                    if (idCompra == null) {
+                                        res.redirect("/tienda?mensaje=Error al comprar");
+                                    } else {
+                                        res.redirect("/compras");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
             }
         });
     });

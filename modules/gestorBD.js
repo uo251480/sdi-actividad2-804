@@ -65,7 +65,7 @@ module.exports = {
             if (err) {
                 funcionCallback(null);
             } else {
-                var collection = db.collection('compras');
+                var collection = db.collection('ofertas');
                 collection.find(criterio).toArray(function(err, usuarios) {
                     if (err) {
                         funcionCallback(null);
@@ -73,6 +73,52 @@ module.exports = {
                         funcionCallback(usuarios);
                     }
                     db.close();
+                });
+            }
+        });
+    },
+
+    restarDinero: function (idDeOferta, correo, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                var collection = db.collection('ofertas');
+                var criterio = {"_id": idDeOferta};
+                collection.find(criterio).toArray(function (err, ofertas) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        var precioOferta = ofertas[0].precio;
+                        collection = db.collection('usuarios');
+                        criterio = {"email": correo};
+                        collection.find(criterio).toArray(function (err, usuarios) {
+                            if (err) {
+                                funcionCallback(null);
+                            } else {
+                                var dineroUsuario = usuarios[0].money;
+                                console.log("Dinero del usuario: " + dineroUsuario);
+                                console.log("Dinero del oferta: " + precioOferta);
+                                if (dineroUsuario == null || precioOferta == null) {
+                                    funcionCallback(null);
+                                } else {
+                                    var dineroFinal = dineroUsuario - precioOferta;
+                                    if (dineroFinal < 0) {
+                                        funcionCallback(dineroFinal);
+                                    } else {
+                                        collection.update(criterio, {$set: {"money": dineroFinal}}, function (err, result) {
+                                            if (err) {
+                                                funcionCallback(null);
+                                            } else {
+                                                funcionCallback(dineroFinal);
+                                            }
+                                            db.close();
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    }
                 });
             }
         });
@@ -94,6 +140,68 @@ module.exports = {
             }
         });
     },
+    obtenerFondosUsuario: function(correo, functionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                var collection = db.collection('usuarios');
+                var criterio = {"email": correo};
+                collection.find(criterio).toArray(function (err, usuarios) {
+                    if (err) {
+                        functionCallback(null);
+                    } else {
+                        functionCallback(usuarios[0].money);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+    sumarDinero: function (idDeOferta, correo, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                var collection = db.collection('ofertas');
+                var criterio = {"_id": idDeOferta};
+                collection.find(criterio).toArray(function (err, ofertas) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        var precioOferta = ofertas[0].precio;
+                        var collection = db.collection('usuarios');
+                        var criterio = {"email": correo};
+                        collection.find(criterio).toArray(function (err, usuarios) {
+                            if (err) {
+                                funcionCallback(null);
+                            } else {
+                                var dineroUsuario = usuarios[0].money;
+
+                                if (dineroUsuario == null || precioOferta == null) {
+                                    funcionCallback(null);
+                                } else {
+                                    var dineroFinal = Number.parseFloat(dineroUsuario) + Number.parseFloat(precioOferta);
+                                    if (dineroFinal < 0) {
+                                        funcionCallback(dineroFinal);
+                                    } else {
+                                        collection.update(criterio, {$set: {"money": dineroFinal}}, function (err, result) {
+                                            if (err) {
+                                                funcionCallback(null);
+                                            } else {
+                                                funcionCallback(dineroFinal);
+                                            }
+                                            db.close();
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    },
     eliminarOferta : function(criterio, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
@@ -111,7 +219,7 @@ module.exports = {
             }
         });
     },
-    insertarCompra: function(compra, funcionCallback) {
+    insertarCompra: function(compra, functionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
                 funcionCallback(null);
@@ -119,9 +227,28 @@ module.exports = {
                 var collection = db.collection('compras');
                 collection.insert(compra, function(err, result) {
                     if (err) {
-                        funcionCallback(null);
+                        functionCallback(null);
                     } else {
-                        funcionCallback(result.ops[0]._id);
+                        functionCallback(result.ops[0]._id);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+    venderOferta: function(idDeOferta, comprador, functionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                var collection = db.collection('ofertas');
+                var criterio = { "_id" : idDeOferta };
+                collection.update(criterio, {$set: {"vendida": comprador}}, function (err, result) {
+                    if (err) {
+                        functionCallbackionCallback(null);
+                    } else {
+                        functionCallback(result);
                     }
                     db.close();
                 });
